@@ -1,11 +1,59 @@
+
 #include "TempleOfRecursia.h"
 using namespace std;
 
+Rectangle calculateRectangle(int bottomCenterX, int bottomY, const Rectangle& bounds, double wParam, double hParam) {
+    int width = bounds.width * wParam;
+    int height = bounds.height * hParam;
+    int x = bottomCenterX - width / 2;
+    int y = bottomY - height;
+    return Rectangle{x, y, width, height};
+}
+
 Vector<Rectangle> makeTemple(const Rectangle& bounds, const TempleParameters& params) {
-    /* TODO: Delete this comment and the next few lines, then implement this function. */
-    (void) bounds;
-    (void) params;
-    return { };
+    if(params.order < 0) {
+        error("order is negative");
+    }
+
+    Vector<Rectangle> result;
+
+    if(params.order == 0) {
+        return result;
+    } else {
+        /* generate base */
+        int bottomY = bounds.y + bounds.height;
+        int bottomCenterX = bounds.x + bounds.width / 2;
+        Rectangle base = calculateRectangle(bottomCenterX, bottomY, bounds, params.baseWidth, params.baseHeight);
+
+        /* generate column */
+        Rectangle column = calculateRectangle(bottomCenterX, base.y, bounds, params.columnWidth, params.columnHeight);
+        result.add(base);
+        result.add(column);
+
+        /* generate upperTempleBounds */
+        Rectangle upperTempleBounds = calculateRectangle(bottomCenterX, column.y, bounds, params.columnWidth, params.upperTempleHeight);
+
+        TempleParameters newParams = params;
+        newParams.order -= 1;
+
+        Vector<Rectangle> upperTempleVector = makeTemple(upperTempleBounds, newParams);
+        result += upperTempleVector;
+
+        int smallTempleWidth = bounds.width * params.smallTempleWidth;
+        int smallTempleHeight = bounds.height * params.smallTempleHeight;
+        int smallTempleX = base.x;
+        int smallTempleY = base.y - smallTempleHeight;
+        int space = (base.width - smallTempleWidth * params.numSmallTemples) / (params.numSmallTemples - 1);
+        for(int i = 0; i < params.numSmallTemples; i++) {
+            Rectangle smallTempleBounds = {smallTempleX, smallTempleY, smallTempleWidth, smallTempleHeight};
+            Vector<Rectangle> smallTempleVector = makeTemple(smallTempleBounds, newParams);
+
+            smallTempleX = smallTempleX + smallTempleWidth + space;
+            result += smallTempleVector;
+        }
+    }
+
+    return result;
 }
 
 

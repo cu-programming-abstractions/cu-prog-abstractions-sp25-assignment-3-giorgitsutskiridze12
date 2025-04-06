@@ -1,12 +1,53 @@
 #include "SpeakingRecursian.h"
 using namespace std;
 
+void recursianVowelHelper(int numSyllables, Vector<string>& result, string chosen);
+void recursianConsonantHelper(int numSyllables, Vector<string>& result, string chosen);
+
 Vector<string> allRecursianWords(int numSyllables) {
-    /* TODO: Delete this comment and the next few lines, then implement
-     * this function.
-     */
-    (void) numSyllables;
-    return { };
+    if(numSyllables < 0) {
+        error("numSyllables is negative");
+    }
+
+    if(numSyllables == 0) {
+        return {""};
+    }
+
+    Vector<string> result;
+
+    string chosen = "";
+    recursianVowelHelper(numSyllables, result, chosen);
+    recursianConsonantHelper(numSyllables, result, chosen);
+
+    return result;
+}
+
+void recursianVowelHelper(int numSyllables, Vector<string>& result, string chosen) {
+    if(numSyllables == 0) {
+        result.add(chosen);
+        return;
+    }
+
+    string vowels = "eiu";
+
+    for(int i = 0; i < vowels.length(); i++) {
+        string addVowel = chosen + vowels[i];
+        recursianConsonantHelper(numSyllables - 1, result, addVowel);
+    }
+}
+
+void recursianConsonantHelper(int numSyllables, Vector<string>& result, string chosen) {
+    if(numSyllables == 0) {
+        result.add(chosen);
+        return;
+    }
+
+    string consonants = "bknrs'";
+
+    for(int i = 0; i < consonants.length(); i++) {
+        string addConsonant = chosen + consonants[i];
+        recursianVowelHelper(numSyllables, result, addConsonant);
+    }
 }
 
 
@@ -54,12 +95,12 @@ PROVIDED_TEST("allRecursianWords has the right quantities of words.") {
 }
 
 namespace {
-    bool isConsonant(char ch) {
-        return ch == 'b' || ch == 'k' || ch == 'n' || ch == 'r' || ch == 's' || ch == '\'';
-    }
-    bool isVowel(char ch) {
-        return ch == 'e' || ch == 'i' || ch == 'u';
-    }
+bool isConsonant(char ch) {
+    return ch == 'b' || ch == 'k' || ch == 'n' || ch == 'r' || ch == 's' || ch == '\'';
+}
+bool isVowel(char ch) {
+    return ch == 'e' || ch == 'i' || ch == 'u';
+}
 }
 
 PROVIDED_TEST("allRecursianWords produces words consisting of consonants and vowels.") {
